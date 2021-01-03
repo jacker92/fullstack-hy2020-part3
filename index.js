@@ -33,40 +33,42 @@ app.get('/api/persons/:id', (request, response) => {
     }).catch(x => {
         console.log("Error", x);
         return response.status(404).end();
-    }
-    )
+    })
 })
 
 app.post('/api/persons', (request, response) => {
-    const maxId = persons.length > 0
-        ? Math.max(...persons.map(n => n.id))
-        : 0
+    const body = request.body
 
-    const person = request.body
-
-    if (!person.name) {
+    if (!body) {
+        return response.status(400).json({ error: 'content missing' })
+    }
+    else if (!body.name) {
         return response.status(400).json({
             error: 'name is missing'
         })
-    } else if (!person.number) {
+    } else if (!body.number) {
         return response.status(400).json({
             error: 'number is missing'
         })
-    } else if (persons.find(x => x.name === person.name)) {
-        return response.status(400).json({
-            error: 'name already exists'
-        })
     }
+    //   else if (persons.find(x => x.name === body.name)) {
+    //     return response.status(400).json({
+    //        error: 'name already exists'
+    // })
+    //}
 
-    person.id = maxId + 1
+    const person = new Person({
+        name: body.name,
+        number: body.number
+    })
 
-    persons = persons.concat(person)
-
-    response.json(person)
+    person.save().then(savedPerson => {
+        response.json(savedPerson)
+    })
 })
 
 app.delete('/api/persons/:id', (request, response) => {
-    const id = Number(request.params.id)
+    const id = request.params.id;
     persons = persons.filter(p => p.id !== id)
     response.status(204).end()
 })
