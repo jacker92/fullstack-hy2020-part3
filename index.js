@@ -7,7 +7,7 @@ const Person = require('./mongo.js')
 
 const app = express()
 
-morgan.token('body', (req, res) => JSON.stringify(req.body));
+morgan.token('body', (req) => JSON.stringify(req.body));
 app.use(cors())
 app.use(express.static('build'))
 app.use(express.json())
@@ -56,15 +56,15 @@ app.put('/api/persons/:id', (request, response, next) => {
     }
 
     Person.findByIdAndUpdate(request.params.id, person, { new: true })
-    .then(person => {
-        return response.json(person)
-    })
-    .catch(x => next(x))
+        .then(person => {
+            return response.json(person)
+        })
+        .catch(x => next(x))
 })
 
 app.delete('/api/persons/:id', (request, response, next) => {
     Person.findByIdAndRemove(request.params.id)
-        .then(result => {
+        .then(() => {
             response.status(204).end()
         }).catch(error => next(error))
 })
