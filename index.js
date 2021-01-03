@@ -1,6 +1,9 @@
 const express = require('express')
 const morgan = require('morgan')
 const cors = require('cors')
+require('dotenv').config()
+
+const Person = require('./mongo.js')
 
 const app = express()
 
@@ -9,19 +12,6 @@ app.use(morgan(':method :url :status :response-time ms - :res[content-length] :b
 app.use(cors())
 app.use(express.json())
 app.use(express.static('build'))
-
-let persons = [
-    {
-        "name": "Mariette Poppendieck",
-        "number": "39-23-6423122",
-        "id": 4
-    },
-    {
-        "name": "Tester Testi",
-        "number": "39-23-1111",
-        "id": 1
-    },
-]
 
 app.get('/info', (req, res) => {
     res.send(
@@ -33,17 +23,18 @@ app.get('/info', (req, res) => {
 })
 
 app.get('/api/persons', (req, res) => {
-    res.json(persons)
+    Person.find({})
+        .then(x => res.json(x))
 })
 
 app.get('/api/persons/:id', (request, response) => {
-    const id = Number(request.params.id)
-    const person = persons.find(p => p.id === id)
-    if (person) {
-        response.json(person)
-    } else {
-        response.status(404).end()
+    Person.findById(request.params.id).then(person => {
+        return response.json(person)
+    }).catch(x => {
+        console.log("Error", x);
+        return response.status(404).end();
     }
+    )
 })
 
 app.post('/api/persons', (request, response) => {
@@ -80,7 +71,7 @@ app.delete('/api/persons/:id', (request, response) => {
     response.status(204).end()
 })
 
-const PORT = process.env.PORT || 3001
+const PORT = process.env.PORT
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)
 })
