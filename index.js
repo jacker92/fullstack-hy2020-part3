@@ -45,6 +45,21 @@ app.post('/api/persons', (request, response) => {
         : 0
 
     const person = request.body
+
+    if (!person.name) {
+        return response.status(400).json({
+            error: 'name is missing'
+        })
+    } else if (!person.number) {
+        return response.status(400).json({
+            error: 'number is missing'
+        })
+    } else if (persons.find(x => x.name === person.name)) {
+        return response.status(400).json({
+            error: 'name already exists'
+        })
+    }
+
     person.id = maxId + 1
 
     persons = persons.concat(person)
