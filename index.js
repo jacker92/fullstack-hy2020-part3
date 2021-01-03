@@ -13,7 +13,8 @@ app.use(express.static('build'))
 app.use(express.json())
 app.use(morgan(':method :url :status :response-time ms - :res[content-length] :body'));
 
-app.get('/info', (req, res) => {
+app.get('/info', async (req, res) => {
+    const persons = await Person.find({});
     res.send(
         `<p>
         Phonebook has info for ${persons.length} people
@@ -62,7 +63,6 @@ app.post('/api/persons', (request, response) => {
 })
 
 app.put('/api/persons/:id', (request, response, next) => {
-
     const body = request.body;
 
     const person = {
